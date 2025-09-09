@@ -1,11 +1,12 @@
 import os
 import socket
+import getpass
 
 
 class User:
     def __init__(self):
         try:
-            self.name = os.environ["USER"]
+            self.name = getpass.getuser()  # Thank you to Elizaveta Beltiukova for this tip
             self.hostname = socket.gethostname()
         except Exception as e:
             raise Exception(e)

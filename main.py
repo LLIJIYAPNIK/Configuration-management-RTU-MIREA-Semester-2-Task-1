@@ -18,12 +18,15 @@ def main():
         try:
             line = input(user.get_user_for_shell())
 
+            if not line:
+                continue
+
             cmd_name, *args = line.split()
             if cmd_name == "exit":
                 break
 
             if cmd_name in register_command.commands:
-                ans = register_command.execute(cmd_name, args)
+                ans = register_command.execute(cmd_name, *args)
                 print(ans)
             elif cmd_name.startswith("$"):
                 var = env.get(cmd_name[1:])

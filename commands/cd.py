@@ -15,8 +15,11 @@ class CdCommand(BaseCommand):
         cd ..
         cd ../..
     """
+    command = "cd"
+    command_description = "cd - change directory"
+
     def execute(self, *args):
-        return f"cd {' '.join(args[0])}"
+        return f"cd {' '.join(*args)}"
 
     def get_help(self):
         return self.__doc__.strip()

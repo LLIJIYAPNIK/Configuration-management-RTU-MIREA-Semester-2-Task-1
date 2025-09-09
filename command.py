@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABC
+import argparse
 
 
 class CommandParseError(Exception):
@@ -15,104 +16,19 @@ class MissingArgumentError(CommandParseError):
 
 
 class BaseCommand(ABC):
-    """Base class for all commands.
+    command = ""
+    command_description = ""
+    flags = {}
+    args = {}
 
-    Attributes:
-        args (tuple): Arguments passed to the command.
-        description (str, optional): Description of the command.
-    """
+    def __init__(self):
+        self.parser = None
+        self.command_description = self.__doc__
 
-    VALID_FLAGS: dict[str, bool] = {}
-    LONG_FLAGS: dict[str, str] = {}
-
-    def __init__(self, args: list):
-        self.args = args
-        self.flags = {}
-        self.positional = []
-
-        self._parse()
-
-    def _parse(self):
-        i = 0
-        while i < len(self.args):
-            arg = self.args[i]
-
-            if arg == '--':
-                self.positional.extend(self.args[i + 1:])
-                break
-
-            elif arg.startswith('--'):
-                i = self._parse_long_flag(i)
-
-            elif arg.startswith('-') and len(arg) > 1:
-                i = self._parse_short_flags(i)
-
-            else:
-                self.positional.append(arg)
-
-            i += 1
-
-    def _parse_long_flag(self, i: int) -> int:
-        part = self.args[i][2:]
-
-        if '=' in part:
-            long_name, value = part.split('=', 1)
-        else:
-            long_name, value = part, None
-
-        if long_name not in self.LONG_FLAGS:
-            raise UnknownFlagError(f"--{long_name}")
-
-        short_name = self.LONG_FLAGS[long_name]
-        takes_arg = self.VALID_FLAGS.get(short_name, False)
-
-        if takes_arg:
-            if value is not None:
-                self.flags[short_name] = value
-            else:
-                if i + 1 >= len(self.args):
-                    raise MissingArgumentError(f"--{long_name}")
-                self.flags[short_name] = self.args[i + 1]
-                return i + 1
-        else:
-            if value is not None:
-                raise CommandParseError(f"--{long_name} does not accept an argument")
-            self.flags[short_name] = True
-
-        return i
-
-    def _parse_short_flags(self, i: int) -> int:
-        flag_group = self.args[i][1:]  # -lah → 'lah'
-
-        j = 0
-        while j < len(flag_group):
-            flag = flag_group[j]
-
-            if flag not in self.VALID_FLAGS:
-                raise UnknownFlagError(f"-{flag}")
-
-            takes_arg = self.VALID_FLAGS[flag]
-
-            if not takes_arg:
-                self.flags[flag] = True
-                j += 1
-                continue
-
-            if j < len(flag_group) - 1:
-                self.flags[flag] = flag_group[j + 1:]
-                break
-            else:
-                if i + 1 >= len(self.args):
-                    raise MissingArgumentError(f"-{flag}")
-                self.flags[flag] = self.args[i + 1]
-                return i + 1
-
-            j += 1
-
-        return i
+        self.register_args()
 
     @abstractmethod
-    def execute(self):
+    def execute(self, *args):
         """Execute the command.
 
         This method must be implemented by subclasses.
@@ -124,6 +40,41 @@ class BaseCommand(ABC):
 
         This method must be implemented by subclasses.
         """
+
+    def register_args(self):
+        self.parser = argparse.ArgumentParser(
+            prog=self.command,
+            description=self.command_description,
+            add_help=True,
+            exit_on_error=False
+        )
+
+        for arg_name, config in self.args.items():
+            kwargs = {
+                "help": config.get("help", ""),
+            }
+
+            if "nargs" in config:
+                kwargs["nargs"] = config["nargs"]
+
+            if "default" in config:
+                kwargs["default"] = config["default"]
+
+            if "metavar" in config:
+                kwargs["metavar"] = config["metavar"]
+
+            self.parser.add_argument(arg_name, **kwargs)
+
+        for flag, config in self.flags.items():
+            kwargs = {
+                "action": config.get("action", "store"),
+                "help": config.get("help", ""),
+            }
+
+            if "default" in config:
+                kwargs["default"] = config["default"]
+
+            self.parser.add_argument(flag, **kwargs)
 
 
 class RegisterCommand:
@@ -179,6 +130,6 @@ class RegisterCommand:
             ValueError: If the command name is not found.
         """
         if name in self.commands:
-            return self.commands[name].execute(*args)
+            return self.commands[name]().execute(args)
         else:
             raise ValueError(f"Command {name} not found")
