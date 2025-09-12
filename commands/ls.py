@@ -31,6 +31,8 @@ class LsCommand(BaseCommand):
     }
 
     def execute(self, raw_args):
+        data = self.parser.parse_args(raw_args)
+        print(data)
         return f"ls {' '.join(raw_args)}"
 
     def get_help(self):

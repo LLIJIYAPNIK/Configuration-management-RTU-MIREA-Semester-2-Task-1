@@ -22,7 +22,7 @@ class BaseCommand(ABC):
     args = {}
 
     def __init__(self):
-        self.parser = None
+        self.parser = argparse.ArgumentParser()
         self.command_description = self.__doc__
 
         self.register_args()
