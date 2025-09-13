@@ -1,7 +1,7 @@
-from command import BaseCommand
+from base.command import Command
 
 
-class CdCommand(BaseCommand):
+class CdCommand(Command):
     """
     cd - change directory
     Usage:

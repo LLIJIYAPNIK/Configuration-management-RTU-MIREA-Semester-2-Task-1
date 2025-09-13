@@ -1,6 +1,6 @@
 from user import User
 from environment import Environment, VarEnvironmentNotFound
-from command import RegisterCommand
+from commands.register import Register
 
 from commands import CdCommand, LsCommand
 from exceptions import UnknownCommandName
@@ -10,7 +10,7 @@ def main():
     env = Environment()
     user = User()
 
-    register_command = RegisterCommand()
+    register_command = Register()
     register_command.register("cd", CdCommand)
     register_command.register("ls", LsCommand)
 

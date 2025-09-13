@@ -1,7 +1,7 @@
-from command import BaseCommand
+from base.command import Command
 
 
-class LsCommand(BaseCommand):
+class LsCommand(Command):
     """
     ls - list files
     Usage:

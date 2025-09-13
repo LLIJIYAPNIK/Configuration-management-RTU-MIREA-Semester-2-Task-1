@@ -5,3 +5,7 @@ __pycache__/
 __pycache__.py
 commands/__pycache__/
 commands/__pycache__.py
+file_system/__pycache__/
+file_system/__pycache__.py
+base/__pycache__/
+base/__pycache__.py
