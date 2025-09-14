@@ -64,10 +64,12 @@ class FileSystemObject(ABC):
         if not isinstance(new_parent, FileSystemObject):
             raise TypeError("New parent must be a FileSystemObject")
         if new_parent == self:
-            raise ValueError("New parent cannot be the same as current directory")
+            raise ValueError(
+                "New parent cannot be the same as current directory"
+            )
 
     @abstractmethod
-    def clone(self, new_parent: "FileSystemObject") -> 'FileSystemObject':
+    def clone(self, new_parent: "FileSystemObject") -> "FileSystemObject":
         """
         Creates a deep copy of this object under a new parent.
 

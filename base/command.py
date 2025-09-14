@@ -34,7 +34,7 @@ class Command(ABC):
             prog=self.command,
             description=self.command_description,
             add_help=True,
-            exit_on_error=False
+            exit_on_error=False,
         )
 
         for arg_name, config in self.args.items():

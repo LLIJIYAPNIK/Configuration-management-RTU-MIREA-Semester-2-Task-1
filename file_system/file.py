@@ -4,7 +4,9 @@ from base import FileSystemObject
 class File(FileSystemObject):
     """Represents a file in the virtual filesystem."""
 
-    def __init__(self, name: str, content: str = "", parent: FileSystemObject = None):
+    def __init__(
+        self, name: str, content: str = "", parent: FileSystemObject = None
+    ):
         """
         Initializes a file.
 
@@ -38,14 +40,16 @@ class File(FileSystemObject):
             ValueError: If content is empty (use clear() instead).
         """
         if not content:
-            raise ValueError("Content cannot be empty; use clear() to clear content")
+            raise ValueError(
+                "Content cannot be empty; use clear() to clear content"
+            )
         self._content = content
 
     def clear(self) -> None:
         """Clears the file content."""
         self._content = ""
 
-    def clone(self, new_parent: FileSystemObject) -> 'File':
+    def clone(self, new_parent: FileSystemObject) -> "File":
         """
         Creates a copy of this file under a new parent.
 

@@ -82,7 +82,7 @@ class XmlClient:
         elif element.tag == "file":
             content_b64 = element.get("content", "")
             try:
-                decoded = base64.b64decode(content_b64).decode('utf-8')
+                decoded = base64.b64decode(content_b64).decode("utf-8")
             except Exception:
                 decoded = content_b64
             return decoded

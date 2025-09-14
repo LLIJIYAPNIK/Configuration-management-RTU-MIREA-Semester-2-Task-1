@@ -15,6 +15,7 @@ class CdCommand(Command):
         cd ..
         cd ../..
     """
+
     command = "cd"
     command_description = "cd - change directory"
     flags = {}
@@ -23,7 +24,7 @@ class CdCommand(Command):
             "nargs": "?",
             "default": ".",
             "help": "path to directory",
-            "metavar": "PATH"
+            "metavar": "PATH",
         }
     }
 

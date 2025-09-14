@@ -3,6 +3,7 @@ class BaseCommandException(Exception):
         super().__init__(message)
         self.message = message
 
+
 class UnknownCommandName(BaseCommandException):
     def __init__(self, command_name: str):
         super().__init__(command_name)

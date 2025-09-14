@@ -8,7 +8,9 @@ class Register:
         """Initialize a new instance of RegisterCommand with an empty command registry."""
         self.commands = {}
         if not isinstance(fs, FileSystem):
-            raise TypeError("fs must be an instance of FileSystem, got " + str(type(fs)))
+            raise TypeError(
+                "fs must be an instance of FileSystem, got " + str(type(fs))
+            )
         self.fs = fs
 
     def register(self, name: str, command_class) -> None:

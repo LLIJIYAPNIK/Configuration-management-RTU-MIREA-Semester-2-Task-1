@@ -31,7 +31,9 @@ class FileSystem:
             raise ValueError("Root directory ('/') not found in tree_dict")
         self._build_tree(self.root, self.tree_dict["/"])
 
-    def _build_tree(self, parent_dir: Directory, structure: Dict[str, Any]) -> None:
+    def _build_tree(
+        self, parent_dir: Directory, structure: Dict[str, Any]
+    ) -> None:
         """
         Recursively builds the filesystem tree from a dictionary.
 
@@ -70,7 +72,9 @@ class FileSystem:
 
         self._print_directory_tree(obj, indent=indent, level=0)
 
-    def _print_directory_tree(self, directory: Directory, indent: int, level: int) -> None:
+    def _print_directory_tree(
+        self, directory: Directory, indent: int, level: int
+    ) -> None:
         """
         Recursively prints a directory and its contents.
 
@@ -80,11 +84,15 @@ class FileSystem:
             level (int): Current depth level.
         """
         prefix = " " * (indent * level)
-        print(f"{prefix}{directory.name}/") if directory.name != "/" else print("/")
+        (
+            print(f"{prefix}{directory.name}/")
+            if directory.name != "/"
+            else print("/")
+        )
 
         children_sorted = sorted(
             directory.children.values(),
-            key=lambda obj: (not isinstance(obj, Directory), obj.name)
+            key=lambda obj: (not isinstance(obj, Directory), obj.name),
         )
 
         for child in children_sorted:
@@ -145,7 +153,9 @@ class FileSystem:
                 raise NotADirectoryError("Path is a file")
             return None
 
-    def find(self, path: str, temp_cwd: Optional[Directory] = None) -> Directory | File | None:
+    def find(
+        self, path: str, temp_cwd: Optional[Directory] = None
+    ) -> Directory | File | None:
         """
         Finds a filesystem object by path.
 
@@ -219,9 +229,13 @@ class FileSystem:
             parent_path = "/".join(parts[:-1])
             parent = self.find(parent_path)
             if parent is None:
-                raise FileNotFoundError(f"Parent directory not found: {parent_path}")
+                raise FileNotFoundError(
+                    f"Parent directory not found: {parent_path}"
+                )
             if not isinstance(parent, Directory):
-                raise NotADirectoryError(f"Path '{parent_path}' is not a directory")
+                raise NotADirectoryError(
+                    f"Path '{parent_path}' is not a directory"
+                )
 
         return parent, name
 
@@ -238,7 +252,9 @@ class FileSystem:
         """
         parent, name = self.resolve_parent_and_name(path)
         if name in parent:
-            raise FileExistsError(f"Object '{name}' already exists in '{parent.get_absolute_path()}'")
+            raise FileExistsError(
+                f"Object '{name}' already exists in '{parent.get_absolute_path()}'"
+            )
         parent.add_child(Directory(name))
 
     def touch(self, path: str) -> None:
@@ -254,7 +270,9 @@ class FileSystem:
         """
         parent, name = self.resolve_parent_and_name(path)
         if name in parent:
-            raise FileExistsError(f"Object '{name}' already exists in '{parent.get_absolute_path()}'")
+            raise FileExistsError(
+                f"Object '{name}' already exists in '{parent.get_absolute_path()}'"
+            )
         parent.add_child(File(name))
 
     def rm(self, path: str) -> None:
@@ -270,10 +288,14 @@ class FileSystem:
         """
         parent, name = self.resolve_parent_and_name(path)
         if name not in parent:
-            raise FileNotFoundError(f"Object '{name}' not found in '{parent.get_absolute_path()}'")
+            raise FileNotFoundError(
+                f"Object '{name}' not found in '{parent.get_absolute_path()}'"
+            )
         del parent.children[name]
 
-    def validate_move_or_copy(self, from_path: str, to_path: str) -> Tuple[Directory | File | None, Directory]:
+    def validate_move_or_copy(
+        self, from_path: str, to_path: str
+    ) -> Tuple[Directory | File | None, Directory]:
         """
         Validates paths for move or copy operations.
 
@@ -306,10 +328,14 @@ class FileSystem:
             raise FileNotFoundError(f"Object '{to_path}' not found")
 
         if not isinstance(to_obj, Directory):
-            raise NotADirectoryError(f"Destination path '{to_path}' is not a directory")
+            raise NotADirectoryError(
+                f"Destination path '{to_path}' is not a directory"
+            )
 
         if from_obj.name in to_obj:
-            raise FileExistsError(f"Object '{from_obj.name}' already exists in '{to_obj.get_absolute_path()}'")
+            raise FileExistsError(
+                f"Object '{from_obj.name}' already exists in '{to_obj.get_absolute_path()}'"
+            )
 
         return from_obj, to_obj
 
@@ -351,7 +377,9 @@ class FileSystem:
         self._add_children_to_xml(filesystem_elem, self.root)
         return filesystem_elem
 
-    def _add_children_to_xml(self, parent_xml_elem: ET.Element, dir_obj: Directory) -> None:
+    def _add_children_to_xml(
+        self, parent_xml_elem: ET.Element, dir_obj: Directory
+    ) -> None:
         """
         Recursively adds children of a directory to the given XML element.
 
@@ -363,7 +391,9 @@ class FileSystem:
             if isinstance(obj, File):
                 file_elem = ET.Element("file")
                 file_elem.set("name", name)
-                encoded_content = base64.b64encode(obj.read().encode('utf-8')).decode('utf-8')
+                encoded_content = base64.b64encode(
+                    obj.read().encode("utf-8")
+                ).decode("utf-8")
                 file_elem.set("content", encoded_content)
                 parent_xml_elem.append(file_elem)
 

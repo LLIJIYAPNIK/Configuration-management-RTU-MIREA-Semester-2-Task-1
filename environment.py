@@ -6,6 +6,7 @@ class VarEnvironmentNotFound(Exception):
         self.var = var
         super().__init__(f"Variable {self.var} not found in environment")
 
+
 class Environment:
     def __init__(self):
         self.environment_copy = os.environ.copy()

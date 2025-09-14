@@ -10,7 +10,7 @@ from file_system import FileSystem
 
 
 def main():
-    fs = (FileSystem(XmlClient("test_vfs.xml").xml_dict))
+    fs = FileSystem(XmlClient("test_vfs.xml").xml_dict)
     fs.create_file_system()
     user = User()
     env = Environment()
@@ -44,7 +44,5 @@ def main():
             continue
 
 
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

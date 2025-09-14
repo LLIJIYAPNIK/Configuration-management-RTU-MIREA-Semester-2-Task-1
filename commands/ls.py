@@ -16,17 +16,14 @@ class LsCommand(Command):
     command = "ls"
     command_description = "list files"
     flags = {
-        "-a": {
-            "action": "store_true",
-            "help": "show all files in directory"
-        }
+        "-a": {"action": "store_true", "help": "show all files in directory"}
     }
     args = {
         "paths": {
             "nargs": "*",
             "default": ["."],
             "help": "path to directory",
-            "metavar": "PATH"
+            "metavar": "PATH",
         }
     }
 

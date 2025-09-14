@@ -38,7 +38,9 @@ class Directory(FileSystemObject):
         if not isinstance(child, FileSystemObject):
             raise TypeError("Child must be a FileSystemObject")
         if child.name in self.children:
-            raise FileExistsError(f"Child with name '{child.name}' already exists in directory '{self.name}'")
+            raise FileExistsError(
+                f"Child with name '{child.name}' already exists in directory '{self.name}'"
+            )
         if child.parent and child.name in child.parent.children:
             del child.parent.children[child.name]
         self.children[child.name] = child
@@ -58,7 +60,9 @@ class Directory(FileSystemObject):
         if not child_name:
             raise ValueError("Child name cannot be empty")
         if child_name not in self.children:
-            raise KeyError(f"Child with name '{child_name}' does not exist in directory '{self.name}'")
+            raise KeyError(
+                f"Child with name '{child_name}' does not exist in directory '{self.name}'"
+            )
         del self.children[child_name]
 
     def get_child(self, child_name: str) -> Optional[FileSystemObject]:
@@ -82,7 +86,7 @@ class Directory(FileSystemObject):
         """Returns a dictionary of all children."""
         return self.children
 
-    def clone(self, new_parent: 'Directory') -> 'Directory':
+    def clone(self, new_parent: "Directory") -> "Directory":
         """
         Creates a deep copy of this directory and all its contents.
         Validates parameters using `validate_clone()` before proceeding.

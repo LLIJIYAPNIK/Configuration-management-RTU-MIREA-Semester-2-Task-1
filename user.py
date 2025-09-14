@@ -8,7 +8,9 @@ from base import FileSystemObject
 class User:
     def __init__(self):
         try:
-            self.name = getpass.getuser()  # Thank you to Elizaveta Beltiukova for this tip
+            self.name = (
+                getpass.getuser()
+            )  # Thank you to Elizaveta Beltiukova for this tip
             self.hostname = socket.gethostname()
         except Exception as e:
             raise Exception(e)

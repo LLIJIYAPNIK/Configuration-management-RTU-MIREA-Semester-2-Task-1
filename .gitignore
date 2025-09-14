@@ -1,6 +1,7 @@
 .gigaide/
 .idea/
 .venv/
+.flake8
 __pycache__/
 __pycache__.py
 commands/__pycache__/
