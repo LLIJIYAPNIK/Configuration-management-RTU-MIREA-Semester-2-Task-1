@@ -1,22 +1,27 @@
-from user import User
-from environment import Environment, VarEnvironmentNotFound
 from commands.register import Register
 
 from commands import CdCommand, LsCommand
 from exceptions import UnknownCommandName
+from xml_parser import XmlClient
+from user import User
+from environment import Environment
+
+from file_system import FileSystem
 
 
 def main():
-    env = Environment()
+    fs = (FileSystem(XmlClient("test_vfs.xml").xml_dict))
+    fs.create_file_system()
     user = User()
+    env = Environment()
 
-    register_command = Register()
+    register_command = Register(fs)
     register_command.register("cd", CdCommand)
     register_command.register("ls", LsCommand)
 
     while True:
         try:
-            line = input(user.get_user_for_shell())
+            line = input(user.get_user_for_shell(fs.cwd))
 
             if not line:
                 continue
@@ -26,19 +31,17 @@ def main():
                 break
 
             if cmd_name in register_command.commands:
-                ans = register_command.execute(cmd_name, *args)
-                print(ans)
+                register_command.execute(cmd_name, *args)
             elif cmd_name.startswith("$"):
                 var = env.get(cmd_name[1:])
                 print(var)
             else:
                 raise UnknownCommandName(cmd_name)
-        except VarEnvironmentNotFound(cmd_name) as e:
-            raise e
-        except KeyboardInterrupt as e:
-            raise e
-        except UnknownCommandName as e:
-            raise e
+        except KeyboardInterrupt:
+            break
+        except Exception as e:
+            print(e)
+            continue
 
 
 

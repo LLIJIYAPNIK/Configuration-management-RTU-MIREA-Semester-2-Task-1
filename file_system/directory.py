@@ -1,12 +1,12 @@
 from typing import Optional, Dict
 
-from base.file_system_object import FileSystemObject
+from base import FileSystemObject
 
 
 class Directory(FileSystemObject):
     """Represents a directory in the virtual filesystem."""
 
-    def __init__(self, name: str, parent: Optional['Directory'] = None):
+    def __init__(self, name: str, parent: Optional["Directory"] = None):
         """
         Initializes a directory.
 
@@ -14,6 +14,13 @@ class Directory(FileSystemObject):
             name (str): Directory name.
             parent (Directory, optional): Parent directory. Defaults to None.
         """
+
+        if parent:
+            if not isinstance(parent, Directory):
+                raise TypeError("Parent must be a Directory")
+            if parent.name == name:
+                raise ValueError("Directory cannot be its own parent")
+
         super().__init__(name, parent)
         self.children: Dict[str, FileSystemObject] = {}
 
@@ -94,6 +101,9 @@ class Directory(FileSystemObject):
             validate_clone: Performs parameter validation.
         """
         self.validate_clone(new_parent)
+        if not isinstance(new_parent, Directory):
+            raise TypeError("Parent must be a Directory")
+
         new_dir = Directory(self.name, new_parent)
         for child in self.children.values():
             new_child = child.clone(new_dir)

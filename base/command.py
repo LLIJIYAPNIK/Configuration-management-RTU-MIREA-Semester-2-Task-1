@@ -7,6 +7,7 @@ class Command(ABC):
     command_description = ""
     flags = {}
     args = {}
+    fs = None
 
     def __init__(self):
         self.parser = argparse.ArgumentParser()

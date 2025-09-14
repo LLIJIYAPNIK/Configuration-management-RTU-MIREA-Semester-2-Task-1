@@ -2,6 +2,8 @@ import os
 import socket
 import getpass
 
+from base import FileSystemObject
+
 
 class User:
     def __init__(self):
@@ -15,8 +17,8 @@ class User:
     def _get_cur_dir():
         return os.getcwd()
 
-    def get_user_for_shell(self):
-        return f"{str(self)}:{self._get_cur_dir()}$ "
+    def get_user_for_shell(self, cwd: FileSystemObject):
+        return f"{str(self)}:{cwd.get_absolute_path()}$ "
 
     def __str__(self):
         return f"{self.name}@{self.hostname}"

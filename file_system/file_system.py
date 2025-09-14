@@ -2,8 +2,8 @@ import base64
 from typing import Dict, Any, Optional, Tuple
 import xml.etree.ElementTree as ET
 
-from .directory import Directory
-from .file import File
+from file_system.directory import Directory
+from file_system.file import File
 
 
 class FileSystem:
@@ -132,7 +132,20 @@ class FileSystem:
         else:
             raise FileNotFoundError(f"Directory '{path}' not found")
 
-    def find(self, path: str, temp_cwd: Optional[Directory] = None) -> Optional[FileSystemObject]:
+    def ls(self, path: str = None) -> list[str] | None:
+        if path is None or path == ".":
+            return [_.name for _ in self.cwd]
+        else:
+            obj = self.find(path)
+            if obj is None:
+                return None
+            if isinstance(obj, Directory):
+                return [_.name for _ in obj]
+            if isinstance(obj, File):
+                raise NotADirectoryError("Path is a file")
+            return None
+
+    def find(self, path: str, temp_cwd: Optional[Directory] = None) -> Directory | File | None:
         """
         Finds a filesystem object by path.
 
@@ -260,7 +273,7 @@ class FileSystem:
             raise FileNotFoundError(f"Object '{name}' not found in '{parent.get_absolute_path()}'")
         del parent.children[name]
 
-    def validate_move_or_copy(self, from_path: str, to_path: str) -> Tuple[FileSystemObject, Directory]:
+    def validate_move_or_copy(self, from_path: str, to_path: str) -> Tuple[Directory | File | None, Directory]:
         """
         Validates paths for move or copy operations.
 

@@ -17,11 +17,19 @@ class CdCommand(Command):
     """
     command = "cd"
     command_description = "cd - change directory"
+    flags = {}
+    args = {
+        "path": {
+            "nargs": "?",
+            "default": ".",
+            "help": "path to directory",
+            "metavar": "PATH"
+        }
+    }
 
     def execute(self, *args):
         data = self.parser.parse_args(*args)
-        print(data)
-        return f"cd {' '.join(*args)}"
+        self.fs.cd(data.path)
 
     def get_help(self):
         return self.__doc__.strip()

@@ -1,14 +1,10 @@
-from typing import Optional
-
 from abc import ABC, abstractmethod
-from file_system.directory import Directory
-from file_system.file import File
 
 
 class FileSystemObject(ABC):
     """Abstract base class for all filesystem objects (files and directories)."""
 
-    def __init__(self, name: str, parent: Optional['Directory'] = None):
+    def __init__(self, name: str, parent: "FileSystemObject" = None):
         """
         Initializes a filesystem object.
 
@@ -52,15 +48,7 @@ class FileSystemObject(ABC):
             raise ValueError("New name cannot be empty")
         self.name = new_name
 
-    def is_dir(self) -> bool:
-        """Returns True if this object is a Directory."""
-        return isinstance(self, Directory)
-
-    def is_file(self) -> bool:
-        """Returns True if this object is a File."""
-        return isinstance(self, File)
-
-    def validate_clone(self, new_parent: 'Directory') -> None:
+    def validate_clone(self, new_parent: "FileSystemObject") -> None:
         """
         Validates parameters for cloning.
 
@@ -73,13 +61,13 @@ class FileSystemObject(ABC):
         """
         if not new_parent:
             raise ValueError("New parent cannot be empty")
-        if not isinstance(new_parent, Directory):
-            raise TypeError("New parent must be a Directory")
+        if not isinstance(new_parent, FileSystemObject):
+            raise TypeError("New parent must be a FileSystemObject")
         if new_parent == self:
             raise ValueError("New parent cannot be the same as current directory")
 
     @abstractmethod
-    def clone(self, new_parent: 'Directory') -> 'FileSystemObject':
+    def clone(self, new_parent: "FileSystemObject") -> 'FileSystemObject':
         """
         Creates a deep copy of this object under a new parent.
 

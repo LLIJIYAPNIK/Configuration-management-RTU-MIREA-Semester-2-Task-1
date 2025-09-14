@@ -1,13 +1,10 @@
-from typing import Optional
-
-from base.file_system_object import FileSystemObject
-from .directory import Directory
+from base import FileSystemObject
 
 
 class File(FileSystemObject):
     """Represents a file in the virtual filesystem."""
 
-    def __init__(self, name: str, content: str = "", parent: Optional[Directory] = None):
+    def __init__(self, name: str, content: str = "", parent: FileSystemObject = None):
         """
         Initializes a file.
 
@@ -16,6 +13,13 @@ class File(FileSystemObject):
             content (str): File content (decoded from base64). Defaults to empty string.
             parent (Directory, optional): Parent directory. Defaults to None.
         """
+
+        if parent:
+            if isinstance(parent, File):
+                raise TypeError("Parent must be a Directory")
+            if parent.name == name:
+                raise ValueError("Directory cannot be its own parent")
+
         super().__init__(name, parent)
         self._content = content
 
@@ -41,7 +45,7 @@ class File(FileSystemObject):
         """Clears the file content."""
         self._content = ""
 
-    def clone(self, new_parent: 'Directory') -> 'File':
+    def clone(self, new_parent: FileSystemObject) -> 'File':
         """
         Creates a copy of this file under a new parent.
 
@@ -59,4 +63,7 @@ class File(FileSystemObject):
             validate_clone: Performs parameter validation.
         """
         self.validate_clone(new_parent)
+        if isinstance(new_parent, File):
+            raise TypeError("Parent must be a Directory")
+
         return File(self.name, self._content, new_parent)

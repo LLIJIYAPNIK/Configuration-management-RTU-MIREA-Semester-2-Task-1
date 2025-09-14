@@ -32,8 +32,7 @@ class LsCommand(Command):
 
     def execute(self, raw_args):
         data = self.parser.parse_args(raw_args)
-        print(data)
-        return f"ls {' '.join(raw_args)}"
+        print("\n".join(self.fs.ls(data.paths[0])))
 
     def get_help(self):
         return self.__doc__.strip()
