@@ -59,11 +59,11 @@ class FileSystemObject(ABC):
             ValueError: If new_parent is None or self.
             TypeError: If new_parent is not a Directory.
         """
-        if not new_parent:
+        if new_parent is None:
             raise ValueError("New parent cannot be empty")
         if not isinstance(new_parent, FileSystemObject):
             raise TypeError("New parent must be a FileSystemObject")
-        if new_parent == self:
+        if new_parent is self.parent:
             raise ValueError(
                 "New parent cannot be the same as current directory"
             )

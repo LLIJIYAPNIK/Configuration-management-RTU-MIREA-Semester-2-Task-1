@@ -19,8 +19,6 @@ class File(FileSystemObject):
         if parent:
             if isinstance(parent, File):
                 raise TypeError("Parent must be a Directory")
-            if parent.name == name:
-                raise ValueError("Directory cannot be its own parent")
 
         super().__init__(name, parent)
         self._content = content

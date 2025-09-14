@@ -119,9 +119,6 @@ class FileSystem:
             FileNotFoundError: If path does not exist.
             NotADirectoryError: If target is not a directory.
         """
-        if not path:
-            raise ValueError("Path cannot be empty")
-
         if path == "..":
             if self.cwd.parent:
                 self.cwd = self.cwd.parent
@@ -131,14 +128,26 @@ class FileSystem:
             pass
         elif path == "/":
             self.cwd = self.root
-        elif self.exists(path):
-            target = self.find(path)
-            if isinstance(target, Directory):
-                self.cwd = target
-            else:
-                raise NotADirectoryError(f"Path '{path}' is not a directory")
         else:
-            raise FileNotFoundError(f"Directory '{path}' not found")
+            if not path.startswith("/"):
+                current_path = self.pwd
+                if current_path == "/":
+                    target_path = f"/{path}"
+                else:
+                    target_path = f"{current_path}/{path}"
+            else:
+                target_path = path
+
+            if self.exists(target_path):
+                target = self.find(target_path)
+                if isinstance(target, Directory):
+                    self.cwd = target
+                else:
+                    raise NotADirectoryError(
+                        f"Path '{target_path}' is not a directory"
+                    )
+            else:
+                raise FileNotFoundError(f"Directory '{path}' not found")
 
     def ls(self, path: str = None) -> list[str] | None:
         if path is None or path == ".":
@@ -363,8 +372,7 @@ class FileSystem:
         See also: validate_move_or_copy
         """
         from_obj, to_dir = self.validate_move_or_copy(from_, to)
-        copied_obj = from_obj.clone(to_dir)
-        to_dir.add_child(copied_obj)
+        from_obj.clone(to_dir)
 
     def to_xml_element(self) -> ET.Element:
         """
