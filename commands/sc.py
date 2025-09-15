@@ -1,8 +1,9 @@
 import os
 
 from base.command import Command
+from commands import Register
 from file_system import FileSystem
-from terminal import ScriptTerminal
+from terminal import ScriptRunner
 from xml_parser import XmlClient
 
 
@@ -30,7 +31,6 @@ class ScCommand(Command):
         if os.path.exists(parsed.vfs):
             new_file_system = FileSystem(XmlClient(parsed.vfs).xml_dict)
             new_file_system.create_file_system()
-            print(new_file_system is self.register.fs)
         else:
             raise FileExistsError("VFS not found. Check your path to VFS.")
 
@@ -39,8 +39,17 @@ class ScCommand(Command):
         else:
             raise FileExistsError("Script not found. Check your path to script.")
 
-        with ScriptTerminal(new_file_system, self.register.user, self.register.env, self.register) as terminal:
-            terminal.execute_script(path_to_script)
+        new_register = Register(new_file_system, self.user, self.env)
+        new_register.terminal = self.register.terminal
+        for cmd_name, cmd_class in self.register.commands.items():
+            new_register.commands[cmd_name] = cmd_class
+            new_register.commands[cmd_name].fs = new_file_system
+
+        self.register.terminal.fs = new_file_system
+        self.register.terminal.register = new_register
+
+        runner = ScriptRunner(self.register.terminal)
+        runner.run(path_to_script)
 
     def get_help(self):
         return self.__doc__.strip()

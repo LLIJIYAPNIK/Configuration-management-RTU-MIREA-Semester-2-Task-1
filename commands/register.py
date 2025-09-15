@@ -13,6 +13,7 @@ class Register:
         self.fs = fs
         self.user = user
         self.env = env
+        self.terminal = None
 
     def register(self, name: str, command_class: Command) -> None:
         """Register a command class under a given name.

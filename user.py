@@ -1,4 +1,3 @@
-import os
 import socket
 import getpass
 
@@ -17,7 +16,7 @@ class User:
         self.hostname = socket.gethostname() if hostname is None else hostname
 
     def get_user_for_shell(self, cwd: FileSystemObject):
-        return f"{str(self)}:{cwd.get_absolute_path()}$ "
+        return f"{str(self)}:~{cwd.get_absolute_path()}$ "
 
     def __str__(self):
         return f"{self.name}@{self.hostname}"
