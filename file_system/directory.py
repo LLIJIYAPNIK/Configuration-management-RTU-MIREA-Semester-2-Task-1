@@ -34,7 +34,9 @@ class Directory(FileSystemObject):
             FileExistsError: If a child with the same name already exists.
         """
         if not isinstance(child, FileSystemObject):
-            raise TypeError("Child must be a FileSystemObject")
+            raise TypeError(
+                f"Child must be a FileSystemObject"
+            )
         if child.name in self.children:
             raise FileExistsError(
                 f"Child with name '{child.name}' already exists in directory '{self.name}'"
@@ -55,8 +57,6 @@ class Directory(FileSystemObject):
             ValueError: If child_name is empty.
             KeyError: If child does not exist.
         """
-        if not child_name:
-            raise ValueError("Child name cannot be empty")
         if child_name not in self.children:
             raise KeyError(
                 f"Child with name '{child_name}' does not exist in directory '{self.name}'"
@@ -76,8 +76,10 @@ class Directory(FileSystemObject):
         Raises:
             ValueError: If child_name is empty.
         """
-        if not child_name:
-            raise ValueError("Child name cannot be empty")
+        if child_name not in self.children:
+            raise KeyError(
+                f"Child with name '{child_name}' does not exist in directory '{self.name}'"
+            )
         return self.children.get(child_name)
 
     def get_children(self) -> Dict[str, FileSystemObject]:
@@ -113,35 +115,21 @@ class Directory(FileSystemObject):
         return new_dir
 
     def __getitem__(self, item: str) -> FileSystemObject:
-        if not item:
-            raise ValueError("Child name cannot be empty")
-        return self.children[item]
+        if self.get_child(item):
+            return self.children[item]
 
     def __setitem__(self, key: str, value: FileSystemObject) -> None:
-        if not key:
-            raise ValueError("Key (child name) cannot be empty")
-        if not value:
-            raise ValueError("Value (child object) cannot be empty")
-        if not isinstance(value, FileSystemObject):
-            raise ValueError("Value must be a FileSystemObject")
-        if not isinstance(key, str):
-            raise ValueError("Key must be a string")
-        self.children[key] = value
-        value.parent = self
+        if self.get_child(key):
+            self.children[key] = value
 
     def __delitem__(self, key: str) -> None:
-        if not key:
-            raise ValueError("Child name cannot be empty")
-        del self.children[key]
+        if self.get_child(key):
+            del self.children[key]
 
     def __iter__(self):
         return iter(self.children.values())
 
     def __contains__(self, item: str) -> bool:
-        if not isinstance(item, str):
-            raise TypeError("Item must be a string")
-        if not item:
-            raise ValueError("Item cannot be empty")
         return item in self.children
 
     def __len__(self) -> int:

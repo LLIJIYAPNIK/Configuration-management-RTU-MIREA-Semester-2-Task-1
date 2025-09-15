@@ -45,7 +45,6 @@ def test_bad_directory_add_child():
         directory = Directory("test_directory")
         bad_child = 123
         directory.add_child(bad_child)
-
     with pytest.raises(
         FileExistsError,
         match="Child with name 'test_file' already exists in directory 'test_directory'",
@@ -64,10 +63,6 @@ def test_remove_child():
 
 
 def test_bad_remove_child():
-    with pytest.raises(ValueError, match="Child name cannot be empty"):
-        directory = Directory("test_directory")
-        directory.remove_child("")
-
     with pytest.raises(
         KeyError,
         match="Child with name 'test_file' does not exist in directory 'test_directory'",
@@ -85,9 +80,12 @@ def test_get_child():
 
 
 def test_bad_get_child():
-    with pytest.raises(ValueError, match="Child name cannot be empty"):
+    with pytest.raises(
+        KeyError,
+        match="Child with name 'test_file' does not exist in directory 'test_directory'",
+    ):
         directory = Directory("test_directory")
-        directory.get_child("")
+        directory["test_file"] = File("test_directory")
 
 
 def test_directory_get_children():
@@ -183,3 +181,61 @@ def test_same_parent_clone():
         ValueError, match="New parent cannot be the same as current directory"
     ):
         directory.clone(parent)
+
+
+def test_get_item():
+    directory = Directory("test_directory")
+    directory.add_child(File("test_file"))
+
+    assert directory["test_file"].name == "test_file"
+
+
+def test_bad_get_item():
+    with pytest.raises(
+        KeyError,
+        match="Child with name 'test_file' does not exist in directory 'test_directory'",
+    ):
+        Directory("test_directory")["test_file"]
+
+
+def test_set_item():
+    directory = Directory("test_directory")
+    directory.add_child(File("test_file"))
+    directory["test_file"] = File("new_test_file")
+
+
+def test_bad_set_item():
+    with pytest.raises(
+        KeyError,
+        match="Child with name 'test_file' does not exist in directory 'test_directory'",
+    ):
+        directory = Directory("test_directory")
+        directory["test_file"] = File("test_directory")
+
+
+def test_del_item():
+    directory = Directory("test_directory")
+    directory.add_child(File("test_file"))
+    del directory["test_file"]
+
+
+def test_bad_del_item():
+    with pytest.raises(
+        KeyError,
+        match="Child with name 'test_file' does not exist in directory 'test_directory'",
+    ):
+        directory = Directory("test_directory")
+        del directory["test_file"]
+
+
+def test_contains():
+    directory = Directory("test_directory")
+    directory.add_child(File("test_file"))
+    assert "test_file" in directory
+    assert "nonexistent_file" not in directory
+
+
+def test_len():
+    directory = Directory("test_directory")
+    directory.add_child(File("test_file"))
+    assert len(directory) == 1

@@ -1,3 +1,4 @@
+from base import Command
 from file_system.file_system import FileSystem
 
 
@@ -7,13 +8,9 @@ class Register:
     def __init__(self, fs: FileSystem):
         """Initialize a new instance of RegisterCommand with an empty command registry."""
         self.commands = {}
-        if not isinstance(fs, FileSystem):
-            raise TypeError(
-                "fs must be an instance of FileSystem, got " + str(type(fs))
-            )
         self.fs = fs
 
-    def register(self, name: str, command_class) -> None:
+    def register(self, name: str, command_class: Command) -> None:
         """Register a command class under a given name.
 
         Args:
@@ -59,7 +56,5 @@ class Register:
         Raises:
             ValueError: If the command name is not found.
         """
-        if name in self.commands:
-            return self.commands[name]().execute(args)
-        else:
-            raise ValueError(f"Command {name} not found")
+        obj = self.get(name)
+        return obj().execute(args)
