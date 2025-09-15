@@ -15,11 +15,10 @@ class XmlClient:
             path_to_file (str): Path to the XML file.
         """
         self.path_to_file = path_to_file
-        self.xml_obj = self.get_xml_root(self.path_to_file)
+        self.xml_obj = self.get_xml_root()
         self.xml_dict = {"/": self.xml_to_dict(self.xml_obj, is_root=True)}
 
-    @staticmethod
-    def get_xml_root(path_to_file: str) -> ET.Element:
+    def get_xml_root(self) -> ET.Element:
         """
         Parses XML file and returns the root element.
 
@@ -33,7 +32,7 @@ class XmlClient:
             FileNotFoundError: If the file does not exist.
             ET.ParseError: If the XML is malformed.
         """
-        tree = ET.parse(path_to_file)
+        tree = ET.parse(self.path_to_file)
         return tree.getroot()
 
     def xml_to_dict(self, xml_input: Any, is_root: bool = True) -> Any:
@@ -88,3 +87,7 @@ class XmlClient:
             return decoded
 
         return None
+
+
+xml = XmlClient("test_vfs.xml")
+print(xml.get_xml_root().tag)

@@ -34,9 +34,7 @@ class Directory(FileSystemObject):
             FileExistsError: If a child with the same name already exists.
         """
         if not isinstance(child, FileSystemObject):
-            raise TypeError(
-                f"Child must be a FileSystemObject"
-            )
+            raise TypeError(f"Child must be a FileSystemObject")
         if child.name in self.children:
             raise FileExistsError(
                 f"Child with name '{child.name}' already exists in directory '{self.name}'"

@@ -8,18 +8,18 @@ class VarEnvironmentNotFound(Exception):
 
 
 class Environment:
-    def __init__(self):
-        self.environment_copy = os.environ.copy()
+    def __init__(self, from_user: dict = None):
+        self.environment = (
+            from_user if from_user is not None else os.environ.copy()
+        )
 
     def get(self, var: str) -> str | None:
-        if var in self.environment_copy:
-            return self.environment_copy[var]
+        if var in self.environment:
+            return self.environment[var]
         else:
-            raise VarEnvironmentNotFound(var)
+            raise VarEnvironmentNotFound(f"{var} not found in environment")
 
     def set(self, var: str, value: str) -> int():
-        if var in self.environment_copy:
-            self.environment_copy[var] = value
-            return 0
-        else:
-            raise VarEnvironmentNotFound(var)
+        if self.get(var):
+            self.environment[var] = value
+            return "Success"
