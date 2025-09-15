@@ -1,14 +1,18 @@
 from base import Command
+from environment import Environment
 from file_system.file_system import FileSystem
+from user import User
 
 
 class Register:
     """Manages registration and execution of command classes."""
 
-    def __init__(self, fs: FileSystem):
+    def __init__(self, fs: FileSystem, user: User, env: Environment):
         """Initialize a new instance of RegisterCommand with an empty command registry."""
         self.commands = {}
         self.fs = fs
+        self.user = user
+        self.env = env
 
     def register(self, name: str, command_class: Command) -> None:
         """Register a command class under a given name.
@@ -57,4 +61,11 @@ class Register:
             ValueError: If the command name is not found.
         """
         obj = self.get(name)
-        return obj().execute(args)
+        cmd = obj()
+
+        cmd.fs = self.fs
+        cmd.user = self.user
+        cmd.env = self.env
+        cmd.register = self
+
+        return cmd.execute(args)

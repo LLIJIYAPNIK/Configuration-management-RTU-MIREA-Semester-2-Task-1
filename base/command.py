@@ -7,9 +7,13 @@ class Command(ABC):
     command_description = ""
     flags = {}
     args = {}
-    fs = None
 
     def __init__(self):
+        self.fs = None
+        self.user = None
+        self.env = None
+        self.register = None
+
         self.parser = argparse.ArgumentParser()
         self.command_description = self.__doc__
 
@@ -44,16 +48,19 @@ class Command(ABC):
 
             if "nargs" in config:
                 kwargs["nargs"] = config["nargs"]
-
             if "default" in config:
                 kwargs["default"] = config["default"]
-
             if "metavar" in config:
                 kwargs["metavar"] = config["metavar"]
+            if "type" in config:
+                kwargs["type"] = config["type"]
 
             self.parser.add_argument(arg_name, **kwargs)
 
         for flag, config in self.flags.items():
+            if not flag.startswith('-'):
+                flag = f"--{flag}"
+
             kwargs = {
                 "action": config.get("action", "store"),
                 "help": config.get("help", ""),
@@ -61,5 +68,7 @@ class Command(ABC):
 
             if "default" in config:
                 kwargs["default"] = config["default"]
+            if "type" in config:
+                kwargs["type"] = config["type"]
 
             self.parser.add_argument(flag, **kwargs)

@@ -87,7 +87,3 @@ class XmlClient:
             return decoded
 
         return None
-
-
-xml = XmlClient("test_vfs.xml")
-print(xml.get_xml_root().tag)
