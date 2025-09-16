@@ -1,4 +1,4 @@
-from base import FileSystemObject
+from abstract import FileSystemObject
 
 
 class File(FileSystemObject):

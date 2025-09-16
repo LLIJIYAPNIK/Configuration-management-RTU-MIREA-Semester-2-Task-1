@@ -1,4 +1,4 @@
-from base.command import Command
+from abstract.command import Command
 
 
 class LsCommand(Command):

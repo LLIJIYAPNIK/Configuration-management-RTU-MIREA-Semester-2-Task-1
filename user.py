@@ -1,7 +1,7 @@
 import socket
 import getpass
 
-from base import FileSystemObject
+from abstract import FileSystemObject
 
 
 class User:

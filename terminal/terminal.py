@@ -6,7 +6,9 @@ from user import User
 
 
 class Terminal:
-    def __init__(self, fs: FileSystem, user: User, env: Environment, register: Register):
+    def __init__(
+        self, fs: FileSystem, user: User, env: Environment, register: Register
+    ):
         self.fs = fs
         self.user = user
         self.env = env

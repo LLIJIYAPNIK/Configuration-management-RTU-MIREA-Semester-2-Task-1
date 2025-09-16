@@ -1,6 +1,6 @@
 from typing import Optional, Dict
 
-from base import FileSystemObject
+from abstract import FileSystemObject
 
 
 class Directory(FileSystemObject):

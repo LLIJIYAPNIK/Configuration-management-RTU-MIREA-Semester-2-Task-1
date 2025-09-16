@@ -1,4 +1,4 @@
-from base.runner import Runner
+from abstract.runner import Runner
 
 
 class InteractiveRunner(Runner):

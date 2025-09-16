@@ -28,13 +28,13 @@ def test_get_user_for_shell():
 
     user = User("Alex", "desktop")
     assert (
-        user.get_user_for_shell(fs.cwd) == f"{user.name}@{user.hostname}:/$ "
+        user.get_user_for_shell(fs.cwd) == f"{user.name}@{user.hostname}:~/$ "
     )
 
     fs.cd("/home")
     assert (
         user.get_user_for_shell(fs.cwd)
-        == f"{user.name}@{user.hostname}:/home$ "
+        == f"{user.name}@{user.hostname}:~/home$ "
     )
 
 

@@ -1,6 +1,6 @@
 import os
 
-from base.command import Command
+from abstract.command import Command
 from commands import Register
 from file_system import FileSystem
 from terminal import ScriptRunner
@@ -37,7 +37,9 @@ class ScCommand(Command):
         if os.path.exists(parsed.script):
             path_to_script = parsed.script
         else:
-            raise FileExistsError("Script not found. Check your path to script.")
+            raise FileExistsError(
+                "Script not found. Check your path to script."
+            )
 
         new_register = Register(new_file_system, self.user, self.env)
         new_register.terminal = self.register.terminal

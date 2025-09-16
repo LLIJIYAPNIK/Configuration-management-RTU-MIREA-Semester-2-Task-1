@@ -1,10 +1,10 @@
-from base import Runner
+from abstract import Runner
 
 
 class ScriptRunner(Runner):
     def run(self, script_path: str):
         try:
-            with open(script_path, 'r', encoding='utf-8') as f:
+            with open(script_path, "r", encoding="utf-8") as f:
                 for line_num, line in enumerate(f, 1):
                     line = line.strip()
                     if not line or line.startswith("#"):

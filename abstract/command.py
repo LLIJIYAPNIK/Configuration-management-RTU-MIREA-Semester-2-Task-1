@@ -58,7 +58,7 @@ class Command(ABC):
             self.parser.add_argument(arg_name, **kwargs)
 
         for flag, config in self.flags.items():
-            if not flag.startswith('-'):
+            if not flag.startswith("-"):
                 flag = f"--{flag}"
 
             kwargs = {

@@ -1,4 +1,4 @@
-from base import Command
+from abstract import Command
 from environment import Environment
 from file_system.file_system import FileSystem
 from user import User
