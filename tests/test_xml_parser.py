@@ -1,8 +1,10 @@
 import os
+from pathlib import Path
+
 from xml_parser import XmlClient
 
 
-XML_DATA = """
+xml_str = """
 <filesystem>
     <folder name="home">
         <file name="hello.txt" content="SGVsbG8gV29ybGQh" /> <!-- "Hello World!" -->
@@ -54,36 +56,15 @@ XML_DICT = {
     }
 }
 
-file_path = os.path.join("tests", "test.xml")
-with open(file_path, "w") as file:
-    for line in XML_DATA:
-        file.write(line)
-test_xml = XmlClient(file_path)
-
 
 def test_xml_parser_creation():
-    file_path = os.path.join("tests", "test.xml")
+    test_xml = XmlClient(xml_str=xml_str)
 
-    with open(file_path, "w") as file:
-        for line in XML_DATA:
-            file.write(line)
-    test_xml = XmlClient(file_path)
-
-    assert file_path == test_xml.path_to_file
     assert test_xml.xml_obj.tag == "filesystem"
     assert test_xml.xml_dict == XML_DICT
 
-    os.remove(file_path)
-
 
 def test_xml_get_xml_root():
-    file_path = os.path.join("tests", "test.xml")
-
-    with open(file_path, "w") as file:
-        for line in XML_DATA:
-            file.write(line)
-    test_xml = XmlClient(file_path)
+    test_xml = XmlClient(xml_str=xml_str)
 
     assert test_xml.get_xml_root().tag == "filesystem"
-
-    os.remove(file_path)

@@ -6,6 +6,8 @@ class ScriptRunner(Runner):
         try:
             with open(script_path, "r", encoding="utf-8") as f:
                 for line_num, line in enumerate(f, 1):
+                    if not self.terminal.is_running:  # ← добавь эту проверку!
+                        break
                     line = line.strip()
                     if not line or line.startswith("#"):
                         continue

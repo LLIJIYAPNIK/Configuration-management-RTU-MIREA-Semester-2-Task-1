@@ -10,6 +10,35 @@ from terminal.terminal import Terminal
 from terminal.interactive import InteractiveRunner
 
 
+XML_STR = """
+<filesystem>
+    <folder name="home">
+        <file name="hello.txt" content="SGVsbG8gV29ybGQh" /> <!-- "Hello World!" -->
+        <file name="secret.key" content="c2VjcmV0X2tleV8xMjM=" /> <!-- "secret_key_123" -->
+        <folder name="docs">
+            <file name="readme.md" content="IyBSZWFkbWUKClRoaXMgaXMgYSB0ZXN0IGZpbGUu" /> <!-- "# Readme\n\nThis is a test file." -->
+            <folder name="images">
+                <file name="logo.png" content="iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFeAJcVd7wbgAAAABJRU5ErkJggg==" />
+            </folder>
+        </folder>
+        <folder name="projects">
+            <folder name="project_alpha">
+                <file name="main.py" content="cHJpbnQoIkhlbGxvLCBwcm9qZWN0IEFscGhhISIp" /> <!-- print("Hello, project Alpha!") -->
+                <file name="config.json" content="eyJzZXR0aW5nIjogInRydWV9" /> <!-- {"setting": "true} -->
+            </folder>
+            <folder name="project_beta">
+                <file name="index.html" content="PGgxPkhlbGxvIEJldGEhPC9oMT4=" /> <!-- <h1>Hello Beta!</h1> -->
+            </folder>
+        </folder>
+    </folder>
+    <folder name="tmp">
+        <file name="temp.log" content="VGVtcG9yYXJ5IGxvZyBkYXRh" /> <!-- "Temporary log data" -->
+    </folder>
+    <file name="LICENSE" content="TGljZW5zZWQgdW5kZXIgTUlUIExpY2Vuc2U=" /> <!-- "Licensed under MIT License" -->
+</filesystem>
+"""
+
+
 def main():
     register_command.register("cd", CdCommand)
     register_command.register("ls", LsCommand)
@@ -20,7 +49,7 @@ def main():
 
 
 if __name__ == "__main__":
-    fs = FileSystem(XmlClient("test_vfs.xml").xml_dict)
+    fs = FileSystem(XmlClient(xml_str=XML_STR).xml_dict)
     fs.create_file_system()
 
     user = User()

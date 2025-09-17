@@ -3,7 +3,7 @@ import os
 from abstract.command import Command
 from commands import Register
 from file_system import FileSystem
-from terminal import ScriptRunner
+from terminal.script import ScriptRunner
 from xml_parser import XmlClient
 
 

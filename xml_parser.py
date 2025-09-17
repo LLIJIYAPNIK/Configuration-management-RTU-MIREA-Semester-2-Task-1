@@ -1,5 +1,7 @@
 import base64
+import os.path
 import xml.etree.ElementTree as ET
+from io import StringIO
 from pathlib import Path
 from typing import Any, Dict
 
@@ -7,14 +9,21 @@ from typing import Any, Dict
 class XmlClient:
     """Parses XML file representing a virtual filesystem and converts it to a nested dictionary."""
 
-    def __init__(self, path_to_file: str):
+    def __init__(self, path_to_file: str = None, xml_str: str = None):
         """
         Initializes XmlClient by parsing the given XML file.
 
         Args:
             path_to_file (str): Path to the XML file.
         """
-        self.path_to_file = path_to_file
+        if not (path_to_file or xml_str):
+            raise ValueError(
+                "No XML data. Use path to your XML file or string with XML data"
+            )
+        if path_to_file and not os.path.exists(path_to_file):
+            raise FileExistsError("File not found")
+
+        self.data = path_to_file if path_to_file is not None else xml_str
         self.xml_obj = self.get_xml_root()
         self.xml_dict = {"/": self.xml_to_dict(self.xml_obj, is_root=True)}
 
@@ -32,7 +41,11 @@ class XmlClient:
             FileNotFoundError: If the file does not exist.
             ET.ParseError: If the XML is malformed.
         """
-        tree = ET.parse(self.path_to_file)
+        tree = (
+            ET.parse(self.data)
+            if "\n" not in self.data
+            else ET.parse(StringIO(self.data))
+        )
         return tree.getroot()
 
     def xml_to_dict(self, xml_input: Any, is_root: bool = True) -> Any:

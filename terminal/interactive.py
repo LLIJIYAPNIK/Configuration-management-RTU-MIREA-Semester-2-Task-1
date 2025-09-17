@@ -1,4 +1,5 @@
 from abstract.runner import Runner
+from exceptions import UnknownCommandName
 
 
 class InteractiveRunner(Runner):
@@ -10,5 +11,7 @@ class InteractiveRunner(Runner):
             except (KeyboardInterrupt, EOFError):
                 print()
                 break
+            except UnknownCommandName as e:
+                print(e)
             except Exception as e:
                 print(e)
