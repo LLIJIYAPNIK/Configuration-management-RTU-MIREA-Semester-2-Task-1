@@ -1,3 +1,5 @@
+import argparse
+
 from commands.register import Register
 
 from commands import CdCommand, LsCommand, ScCommand
@@ -39,11 +41,28 @@ XML_STR = """
 """
 
 
+def parse_input(terminal: Terminal):
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--vfs")
+    parser.add_argument("--script")
+
+    args = parser.parse_args()
+
+    if args.vfs and args.script:
+        try:
+            terminal.process_line(
+                f"sc --vfs {args.vfs} --script {args.script}"
+            )
+        except FileExistsError as e:
+            print(e)
+
+
 def main():
     register_command.register("cd", CdCommand)
     register_command.register("ls", LsCommand)
     register_command.register("sc", ScCommand)
-
+    parse_input(terminal)
     runner = InteractiveRunner(terminal)
     runner.run()
 

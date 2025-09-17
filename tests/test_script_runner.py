@@ -79,9 +79,7 @@ def test_script_runner_ignores_empty_lines_and_comments(
     runner = ScriptRunner(fresh_terminal)
     runner.run(script)
 
-    assert (
-        fresh_terminal.fs.cwd.name == "docs"
-    )
+    assert fresh_terminal.fs.cwd.name == "docs"
 
 
 def test_script_runner_prints_prompt_and_command(
@@ -124,17 +122,13 @@ def test_script_runner_file_not_found_shows_error(capsys, fresh_terminal):
 def test_script_runner_exit_command_stops_execution(
     fresh_terminal, script_file
 ):
-    script = script_file(
-        ["cd home", "exit", "cd docs"]
-    )
+    script = script_file(["cd home", "exit", "cd docs"])
 
     runner = ScriptRunner(fresh_terminal)
     runner.run(script)
 
     assert fresh_terminal.fs.cwd.name == "home"
-    assert (
-        fresh_terminal.is_running is False
-    )
+    assert fresh_terminal.is_running is False
 
 
 def test_script_runner_continues_after_error(fresh_terminal, script_file):
