@@ -52,7 +52,6 @@ def fresh_terminal():
 
 
 def test_interactive_runner_known_command_executed(fresh_terminal):
-    # Переходим в /home перед тестом
     fresh_terminal.fs.cwd = fresh_terminal.fs.root.get_child("home")
 
     with patch(
@@ -61,14 +60,9 @@ def test_interactive_runner_known_command_executed(fresh_terminal):
         runner = InteractiveRunner(fresh_terminal)
         runner.run()
 
-    # Проверки
     assert mock_input.call_count == 2
-    assert (
-        fresh_terminal.fs.cwd.name == "/"
-    )  # после "cd .." из /home → возвращаемся в корень
-    assert (
-        fresh_terminal.is_running is True
-    )  # потому что выход по EOF, а не по exit
+    assert fresh_terminal.fs.cwd.name == "/"
+    assert fresh_terminal.is_running is True
 
 
 def test_interactive_runner_exit_command_stops_loop(fresh_terminal):
@@ -77,15 +71,12 @@ def test_interactive_runner_exit_command_stops_loop(fresh_terminal):
         runner.run()
 
     assert mock_input.call_count == 1
-    assert (
-        fresh_terminal.is_running is False
-    )  # ← важно! цикл остановлен командой exit
+    assert fresh_terminal.is_running is False
 
 
 def test_interactive_runner_empty_input_ignored_prompt_shown_again(
     fresh_terminal,
 ):
-    # Мокаем get_prompt — чтобы отслеживать вызовы
     with patch.object(
         fresh_terminal, "get_prompt", return_value="PROMPT> "
     ) as mock_prompt:
@@ -93,7 +84,6 @@ def test_interactive_runner_empty_input_ignored_prompt_shown_again(
             runner = InteractiveRunner(fresh_terminal)
             runner.run()
 
-    # Проверяем, что get_prompt вызвался дважды — перед каждым input()
     assert mock_prompt.call_count == 2
     assert mock_input.call_count == 2
     assert fresh_terminal.is_running is False
@@ -109,13 +99,9 @@ def test_interactive_runner_keyboard_interrupt_breaks_loop(
         runner.run()
 
     captured = capsys.readouterr()
-    assert (
-        "\n" in captured.out
-    )  # потому что при KeyboardInterrupt делаем print()
+    assert "\n" in captured.out
     assert mock_input.call_count == 1
-    assert (
-        fresh_terminal.is_running is True
-    )  # цикл прерван, но флаг не менялся
+    assert fresh_terminal.is_running is True
 
 
 def test_interactive_runner_eof_error_breaks_loop(capsys, fresh_terminal):
@@ -124,7 +110,7 @@ def test_interactive_runner_eof_error_breaks_loop(capsys, fresh_terminal):
         runner.run()
 
     captured = capsys.readouterr()
-    assert "\n" in captured.out  # print() при EOFError
+    assert "\n" in captured.out
     assert mock_input.call_count == 1
     assert fresh_terminal.is_running is True
 
@@ -135,9 +121,7 @@ def test_interactive_runner_env_variable_expansion(capsys, fresh_terminal):
         runner.run()
 
     captured = capsys.readouterr()
-    assert (
-        "TESTUSER\n" in captured.out
-    )  # ← должно напечатать значение переменной
+    assert "TESTUSER\n" in captured.out
     assert mock_input.call_count == 2
     assert fresh_terminal.is_running is False
 
@@ -154,11 +138,10 @@ def test_interactive_runner_unknown_command_shows_error_and_continues(
     captured = capsys.readouterr()
     assert "Unknown command: unknown_cmd" in captured.out
     assert mock_input.call_count == 2
-    assert fresh_terminal.is_running is False  # потому что потом ввели "exit"
+    assert fresh_terminal.is_running is False
 
 
 def test_interactive_runner_whitespace_input_ignored(fresh_terminal):
-    # Мокаем get_prompt, чтобы отслеживать вызовы
     with patch.object(
         fresh_terminal, "get_prompt", return_value="PROMPT> "
     ) as mock_prompt:
@@ -168,7 +151,6 @@ def test_interactive_runner_whitespace_input_ignored(fresh_terminal):
             runner = InteractiveRunner(fresh_terminal)
             runner.run()
 
-    # Проверяем, что get_prompt вызвался дважды — перед каждым input()
     assert mock_prompt.call_count == 2
     assert mock_input.call_count == 2
     assert fresh_terminal.is_running is False
@@ -184,15 +166,12 @@ def test_interactive_runner_nonexistent_env_variable_prints_empty(
         runner.run()
 
     captured = capsys.readouterr()
-    assert "\n" in captured.out  # пустая строка + \n от print(var or "")
-    assert (
-        "$NONEXISTENT" not in captured.out
-    )  # не должно выводить имя переменной
+    assert "\n" in captured.out
+    assert "$NONEXISTENT" not in captured.out
     assert mock_input.call_count == 2
 
 
 def test_interactive_runner_multiple_commands_in_sequence(fresh_terminal):
-    # Начинаем из корня
     fresh_terminal.fs.cwd = fresh_terminal.fs.root
 
     with patch(
@@ -201,8 +180,6 @@ def test_interactive_runner_multiple_commands_in_sequence(fresh_terminal):
         runner = InteractiveRunner(fresh_terminal)
         runner.run()
 
-    assert (
-        fresh_terminal.fs.cwd.name == "home"
-    )  # после: cd home → cd docs → cd ..
+    assert fresh_terminal.fs.cwd.name == "home"
     assert mock_input.call_count == 4
     assert fresh_terminal.is_running is False

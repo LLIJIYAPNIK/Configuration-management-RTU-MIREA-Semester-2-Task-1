@@ -1,4 +1,3 @@
-import os
 import pytest
 from exceptions import UnknownCommandName
 from file_system.file_system import FileSystem

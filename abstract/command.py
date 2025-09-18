@@ -58,8 +58,10 @@ class Command(ABC):
             self.parser.add_argument(arg_name, **kwargs)
 
         for flag, config in self.flags.items():
-            if not flag.startswith("-"):
+            if not flag.startswith("--") and flag[0] != "-":
                 flag = f"--{flag}"
+            if not flag.startswith("-") and flag[0] != "-":
+                flag = f"-{flag}"
 
             kwargs = {
                 "action": config.get("action", "store"),
