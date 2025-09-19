@@ -64,9 +64,6 @@ class Register:
         obj = self.get(name)
         cmd = obj()
 
-        cmd.fs = self.fs
-        cmd.user = self.user
-        cmd.env = self.env
         cmd.register = self
 
         return cmd.execute(args)

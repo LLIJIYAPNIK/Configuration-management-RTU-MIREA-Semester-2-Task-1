@@ -1,7 +1,0 @@
-cd home
-ls
-cd ..
-ls
-cd
-cd .
-ls

@@ -43,20 +43,15 @@ class Command(ABC):
     """
 
     command = ""
-    command_description = __doc__.strip()
     flags = {}
     args = {}
 
     def __init__(self):
         # Dependency injection targets — will be set by Register
-        self.fs = None
-        self.user = None
-        self.env = None
         self.register = None
-
+        self.command_description = self.__doc__.strip()
         # Initialize argument parser
         self.parser = argparse.ArgumentParser()
-        self.command_description = self.__doc__  # fallback to class docstring
 
         # Auto-register arguments
         self.register_args()

@@ -1,7 +1,6 @@
 import argparse
 
 from commands.register import Register
-
 from commands import (
     CdCommand,
     LsCommand,
@@ -14,7 +13,6 @@ from commands import (
 from xml_parser import XmlClient
 from user import User
 from environment import Environment
-
 from file_system import FileSystem
 from terminal.terminal import Terminal
 from terminal.interactive import InteractiveRunner
@@ -57,6 +55,42 @@ def parse_input(terminal: Terminal):
             print(e)
 
 
+def initialize_system():
+    """
+    Initializes core system components: fs, user, env, register, terminal.
+
+    Returns:
+        tuple: (fs, user, env, register, terminal)
+    """
+    fs = FileSystem(XmlClient("vfs.xml").xml_dict)
+    fs.create_file_system()
+
+    user = User()
+    env = Environment()
+
+    register = Register(fs, user, env)
+    terminal = Terminal(fs, user, env, register)
+    register.terminal = terminal
+
+    return fs, user, env, register, terminal
+
+
+def register_commands(register: Register):
+    """
+    Registers all built-in commands.
+
+    Args:
+        register (Register): Command registry.
+    """
+    register.register("cd", CdCommand)
+    register.register("ls", LsCommand)
+    register.register("sc", ScCommand)
+    register.register("head", HeadCommand)
+    register.register("tac", TacCommand)
+    register.register("wc", WcCommand)
+    register.register("rm", RmCommand)
+
+
 def main():
     """
     Main application entry point.
@@ -69,14 +103,11 @@ def main():
     Note:
         Assumes global `terminal` and `register_command` are initialized before calling.
     """
-    # Register all available commands
-    register_command.register("cd", CdCommand)
-    register_command.register("ls", LsCommand)
-    register_command.register("sc", ScCommand)
-    register_command.register("head", HeadCommand)
-    register_command.register("tac", TacCommand)
-    register_command.register("wc", WcCommand)
-    register_command.register("rm", RmCommand)
+    # Initialize system
+    fs, user, env, register, terminal = initialize_system()
+
+    # Register commands
+    register_commands(register)
 
     # Handle --vfs/--script arguments (batch mode)
     parse_input(terminal)
@@ -87,44 +118,4 @@ def main():
 
 
 if __name__ == "__main__":
-    """
-    Application bootstrap — creates core system components and starts main().
-
-    Initialization sequence:
-      1. Load virtual filesystem from 'vfs.xml'
-      2. Create User (auto-detects system user/hostname)
-      3. Create Environment (copies real OS env for isolation)
-      4. Create Register (command registry)
-      5. Create Terminal (session context)
-      6. Link Register → Terminal (for command access)
-      7. Call main() → register commands, parse args, start shell
-
-    Default behavior:
-        - Loads 'vfs.xml' from current directory.
-        - Starts interactive shell after processing --vfs/--script (if any).
-
-    Example runs:
-        python main.py                          → Interactive shell
-        python main.py --vfs test.xml --script init.txt → Run script, then exit
-    """
-    # Load virtual filesystem from XML
-    fs = FileSystem(XmlClient("vfs.xml").xml_dict)
-    fs.create_file_system()
-
-    # Create user context (auto-detects real system user/hostname)
-    user = User()
-
-    # Create isolated environment (copies real OS env)
-    env = Environment()
-
-    # Create command registry
-    register_command = Register(fs, user, env)
-
-    # Create terminal session
-    terminal = Terminal(fs, user, env, register_command)
-
-    # Link terminal back to register (for command access to terminal)
-    register_command.terminal = terminal
-
-    # Start application
     main()
