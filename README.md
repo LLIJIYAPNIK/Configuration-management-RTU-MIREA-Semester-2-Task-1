@@ -268,4 +268,4 @@ python main.py
 
 ## 🙏 Acknowledgments
 
-Thanks to **Elizaveta Beltiukova** for the tip about `getpass.getuser()`!
+Thanks to **Elizaveta Beltyukova** for the tip about `getpass.getuser()`!
