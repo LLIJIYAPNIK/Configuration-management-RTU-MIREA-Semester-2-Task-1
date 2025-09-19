@@ -1,12 +1,11 @@
 import pytest
-from exceptions import UnknownCommandName
 from file_system.file_system import FileSystem
 from xml_parser import XmlClient
 from user import User
 from environment import Environment, VarEnvironmentNotFound
 from commands.register import Register
 from commands import CdCommand, LsCommand
-from terminal.terminal import Terminal
+from terminal.terminal import Terminal, UnknownCommandName
 
 
 xml_str = """

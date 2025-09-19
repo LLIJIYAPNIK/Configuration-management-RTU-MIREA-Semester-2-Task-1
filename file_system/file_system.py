@@ -7,14 +7,53 @@ from file_system.file import File
 
 
 class FileSystem:
-    """Manages a virtual filesystem built from a dictionary structure."""
+    """
+    Manages a virtual filesystem built from a dictionary structure (typically parsed from XML).
+
+    This class acts as the root controller of the entire virtual filesystem. It:
+      - Builds the object tree from a dictionary (usually loaded from XML),
+      - Maintains current working directory (cwd),
+      - Provides navigation (cd, pwd),
+      - Supports file/directory operations (ls, mkdir, touch, rm, move, copy),
+      - Enables serialization back to XML.
+
+    Key Features:
+      - Recursive tree building from nested dict structure.
+      - Path resolution with Unix-style semantics (supports '/', '..', '.').
+      - Deep copy and move operations.
+      - Pretty-printed tree visualization.
+      - XML export with base64-encoded file content.
+
+    Example:
+        fs = FileSystem(xml_dict)
+        fs.create_file_system()
+        fs.cd("/home/user")
+        fs.mkdir("docs")
+        fs.touch("readme.txt")
+        fs.save_to_xml("backup.xml")
+    """
 
     def __init__(self, tree_dict: Dict[str, Any]):
         """
         Initializes the filesystem with a root directory.
 
+        The filesystem starts with a root directory named "/", and cwd is set to root.
+        Actual tree population happens via `create_file_system()`.
+
         Args:
-            tree_dict (dict): Dictionary representation of the filesystem (must contain root key "/").
+            tree_dict (dict): Dictionary representation of the filesystem.
+                              Must contain a root key "/" with nested structure.
+
+        Example structure:
+            {
+                "/": {
+                    "home": {
+                        "user": {
+                            "file.txt": "content"
+                        }
+                    }
+                }
+            }
         """
         self.root = Directory("/")
         self.cwd = self.root
@@ -22,10 +61,13 @@ class FileSystem:
 
     def create_file_system(self) -> None:
         """
-        Builds the object-based filesystem from the dictionary structure.
+        Builds the object-based filesystem tree from the dictionary structure.
+
+        Recursively traverses `tree_dict["/"]` and creates Directory/File objects.
+        Raises an error if root key "/" is missing.
 
         Raises:
-            ValueError: If root key "/" is missing in tree_dict.
+            ValueError: If root key "/" is not present in tree_dict.
         """
         if "/" not in self.tree_dict:
             raise ValueError("Root directory ('/') not found in tree_dict")
@@ -37,16 +79,22 @@ class FileSystem:
         """
         Recursively builds the filesystem tree from a dictionary.
 
+        For each key-value pair:
+          - If value is dict → create Directory and recurse.
+          - Otherwise → create File with content (converted to string).
+
         Args:
             parent_dir (Directory): Parent directory to attach children to.
             structure (dict): Dictionary representing current level of the tree.
         """
         for name, content in structure.items():
             if isinstance(content, dict):
+                # Create subdirectory
                 new_dir = Directory(name)
                 parent_dir.add_child(new_dir)
                 self._build_tree(new_dir, content)
             else:
+                # Create file — ensure content is string
                 new_file = File(name, content=str(content) if content else "")
                 parent_dir.add_child(new_file)
 
@@ -54,12 +102,21 @@ class FileSystem:
         """
         Prints the filesystem tree starting from the specified path.
 
+        Output is Unix-tree-style, with directories ending in '/' and files as plain names.
+        Directories are sorted before files, and all entries are alphabetically sorted.
+
         Args:
             path (str): Starting directory path. Defaults to root "/".
             indent (int): Number of spaces per indentation level. Defaults to 2.
 
         Output:
             Prints tree to stdout.
+
+        Example:
+            /
+              home/
+                user/
+                  file.txt
         """
         obj = self.find(path)
         if obj is None:
@@ -78,18 +135,20 @@ class FileSystem:
         """
         Recursively prints a directory and its contents.
 
+        Sorts children: directories first, then files — both alphabetically by name.
+
         Args:
             directory (Directory): Directory to print.
             indent (int): Spaces per level.
-            level (int): Current depth level.
+            level (int): Current depth level (for indentation).
         """
         prefix = " " * (indent * level)
-        (
+        if directory.name == "/":
+            print("/")
+        else:
             print(f"{prefix}{directory.name}/")
-            if directory.name != "/"
-            else print("/")
-        )
 
+        # Sort: directories first, then files — both by name
         children_sorted = sorted(
             directory.children.values(),
             key=lambda obj: (not isinstance(obj, Directory), obj.name),
@@ -111,13 +170,20 @@ class FileSystem:
         """
         Changes the current working directory.
 
+        Supports Unix-style path navigation:
+          - "/" → root
+          - ".." → parent directory
+          - "." → current directory (no-op)
+          - "subdir" → relative to cwd
+          - "/absolute/path" → absolute path
+
         Args:
             path (str): Target directory path.
 
         Raises:
-            ValueError: If path is empty or already at root when going up.
-            FileNotFoundError: If path does not exist.
-            NotADirectoryError: If target is not a directory.
+            ValueError: If trying to go ".." from root.
+            FileNotFoundError: If target path does not exist.
+            NotADirectoryError: If target exists but is not a directory.
         """
         if path == "..":
             if self.cwd.parent:
@@ -125,16 +191,18 @@ class FileSystem:
             else:
                 raise ValueError("Already at root directory")
         elif path == ".":
-            pass
+            pass  # no-op
         elif path == "/":
             self.cwd = self.root
         else:
+            # Resolve relative or absolute path
             if not path.startswith("/"):
                 current_path = self.pwd
-                if current_path == "/":
-                    target_path = f"/{path}"
-                else:
-                    target_path = f"{current_path}/{path}"
+                target_path = (
+                    f"/{path}"
+                    if current_path == "/"
+                    else f"{current_path}/{path}"
+                )
             else:
                 target_path = path
 
@@ -150,6 +218,18 @@ class FileSystem:
                 raise FileNotFoundError(f"Directory '{path}' not found")
 
     def ls(self, path: str = None) -> list[str] | None:
+        """
+        Lists names of children in the specified directory.
+
+        Args:
+            path (str, optional): Directory path. If None or ".", uses cwd.
+
+        Returns:
+            List[str]: List of child names, or None if path is invalid.
+
+        Raises:
+            NotADirectoryError: If path points to a file.
+        """
         if path is None or path == ".":
             return [_.name for _ in self.cwd]
         else:
@@ -168,9 +248,11 @@ class FileSystem:
         """
         Finds a filesystem object by path.
 
+        Supports absolute and relative paths. Uses recursive descent.
+
         Args:
-            path (str): Path to the object.
-            temp_cwd (Directory, optional): Starting directory. Defaults to root.
+            path (str): Path to the object (e.g., "/home/user/file.txt").
+            temp_cwd (Directory, optional): Starting directory for relative paths. Defaults to root.
 
         Returns:
             FileSystemObject or None: Found object, or None if not found.
@@ -178,8 +260,10 @@ class FileSystem:
         if temp_cwd is None:
             temp_cwd = self.root
 
+        # Split path and remove empty parts (handles leading/trailing slashes)
         parts = [p for p in path.split("/") if p]
 
+        # If no parts → return current directory
         if not parts:
             return temp_cwd
 
@@ -189,21 +273,24 @@ class FileSystem:
 
         obj = temp_cwd.children[current_part]
 
+        # If this is the last part → return object
         if len(parts) == 1:
             return obj
 
+        # If it's a directory → recurse
         if isinstance(obj, Directory):
             return self.find("/".join(parts[1:]), obj)
         else:
+            # It's a file, but path continues → invalid
             return None
 
     def exists(self, path: str, temp_cwd: Optional[Directory] = None) -> bool:
         """
-        Checks if a path exists.
+        Checks if a path exists in the filesystem.
 
         Args:
             path (str): Path to check.
-            temp_cwd (Directory, optional): Starting directory. Defaults to root.
+            temp_cwd (Directory, optional): Starting directory for relative paths. Defaults to root.
 
         Returns:
             bool: True if path exists, False otherwise.
@@ -212,10 +299,12 @@ class FileSystem:
 
     def resolve_parent_and_name(self, path: str) -> Tuple[Directory, str]:
         """
-        Splits a path into its parent directory and target name.
+        Splits a path into its parent directory and target object name.
+
+        Used by mkdir, touch, rm, move, copy.
 
         Args:
-            path (str): Full path.
+            path (str): Full path (e.g., "/home/user/file.txt").
 
         Returns:
             tuple: (parent_directory, name)
@@ -250,14 +339,16 @@ class FileSystem:
 
     def mkdir(self, path: str) -> None:
         """
-        Creates a new directory.
+        Creates a new directory at the specified path.
+
+        Parent directories must already exist.
 
         Args:
             path (str): Path for the new directory.
 
         Raises:
             ValueError: If path is invalid.
-            FileExistsError: If directory already exists.
+            FileExistsError: If directory (or file) with same name already exists.
         """
         parent, name = self.resolve_parent_and_name(path)
         if name in parent:
@@ -268,14 +359,16 @@ class FileSystem:
 
     def touch(self, path: str) -> None:
         """
-        Creates a new empty file.
+        Creates a new empty file at the specified path.
+
+        Parent directories must already exist.
 
         Args:
             path (str): Path for the new file.
 
         Raises:
             ValueError: If path is invalid.
-            FileExistsError: If file already exists.
+            FileExistsError: If file (or directory) with same name already exists.
         """
         parent, name = self.resolve_parent_and_name(path)
         if name in parent:
@@ -286,7 +379,9 @@ class FileSystem:
 
     def rm(self, path: str) -> None:
         """
-        Removes a file or directory.
+        Removes a file or directory at the specified path.
+
+        Does not recursively delete non-empty directories — just removes the reference.
 
         Args:
             path (str): Path to remove.
@@ -306,11 +401,17 @@ class FileSystem:
         self, from_path: str, to_path: str
     ) -> Tuple[Directory | File | None, Directory]:
         """
-        Validates paths for move or copy operations.
+        Validates source and destination paths for move/copy operations.
+
+        Ensures:
+          - Paths are not empty or identical.
+          - Source exists.
+          - Destination exists and is a directory.
+          - No name conflict in destination.
 
         Args:
             from_path (str): Source path.
-            to_path (str): Destination path.
+            to_path (str): Destination directory path.
 
         Returns:
             tuple: (source_object, target_directory)
@@ -352,6 +453,8 @@ class FileSystem:
         """
         Moves a filesystem object to a new directory.
 
+        Updates parent reference and removes from old parent.
+
         Args:
             from_ (str): Source path.
             to (str): Destination directory path.
@@ -359,12 +462,16 @@ class FileSystem:
         See also: validate_move_or_copy
         """
         from_obj, to_dir = self.validate_move_or_copy(from_, to)
-        to_dir.add_child(from_obj)
+        to_dir.add_child(
+            from_obj
+        )  # add_child() automatically removes from old parent
 
     def copy(self, from_: str, to: str) -> None:
         """
         Copies a filesystem object to a new directory.
 
+        Performs deep copy for directories (recursively clones all children).
+
         Args:
             from_ (str): Source path.
             to (str): Destination directory path.
@@ -372,14 +479,16 @@ class FileSystem:
         See also: validate_move_or_copy
         """
         from_obj, to_dir = self.validate_move_or_copy(from_, to)
-        from_obj.clone(to_dir)
+        from_obj.clone(to_dir)  # clone() creates copy and adds to new parent
 
     def to_xml_element(self) -> ET.Element:
         """
-        Converts the file system into an XML element with <filesystem> as root.
+        Converts the entire filesystem into an XML element with <filesystem> as root.
+
+        Files are serialized with base64-encoded content.
 
         Returns:
-            xml.etree.ElementTree.Element: The root XML element representing the entire file system.
+            xml.etree.ElementTree.Element: Root XML element representing the filesystem.
         """
         filesystem_elem = ET.Element("filesystem")
         self._add_children_to_xml(filesystem_elem, self.root)
@@ -391,14 +500,18 @@ class FileSystem:
         """
         Recursively adds children of a directory to the given XML element.
 
+        Files: <file name="..." content="base64..."/>
+        Directories: <folder name="..."> ... </folder>
+
         Args:
-            parent_xml_elem (xml.etree.ElementTree.Element): The parent XML element to append children to.
-            dir_obj (Directory): The directory object whose children should be serialized.
+            parent_xml_elem (xml.etree.ElementTree.Element): Parent XML element.
+            dir_obj (Directory): Directory whose children should be serialized.
         """
         for name, obj in dir_obj.children.items():
             if isinstance(obj, File):
                 file_elem = ET.Element("file")
                 file_elem.set("name", name)
+                # Encode content as base64 to safely store binary/text data
                 encoded_content = base64.b64encode(
                     obj.read().encode("utf-8")
                 ).decode("utf-8")
@@ -413,15 +526,14 @@ class FileSystem:
 
     def save_to_xml(self, filepath: str) -> None:
         """
-        Saves the current file system state to an XML file.
+        Saves the current filesystem state to an XML file.
 
-        Serializes the entire file system into XML format and writes it to the specified file path.
-        The output is UTF-8 encoded with an XML declaration and pretty-printed indentation.
+        Output is UTF-8 encoded, includes XML declaration, and is pretty-printed.
 
         Args:
-            filepath (str): The path where the XML file will be saved.
+            filepath (str): Path where XML file will be saved.
         """
         root_elem = self.to_xml_element()
         tree = ET.ElementTree(root_elem)
-        ET.indent(tree, space="    ")
+        ET.indent(tree, space="    ")  # Pretty-print with 4-space indent
         tree.write(filepath, encoding="utf-8", xml_declaration=True)

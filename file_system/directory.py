@@ -4,7 +4,28 @@ from abstract import FileSystemObject
 
 
 class Directory(FileSystemObject):
-    """Represents a directory in the virtual filesystem."""
+    """
+    Represents a directory (folder) in the virtual filesystem.
+
+    Directories are container nodes that can hold other FileSystemObjects —
+    both Files and other Directories. They form the hierarchical structure of the filesystem.
+
+    Key Features:
+      - Manages child objects via a name → object dictionary.
+      - Supports deep cloning (copies self + all children recursively).
+      - Implements Pythonic container interface (__getitem__, __iter__, etc.).
+      - Enforces type safety and uniqueness of child names.
+
+    Inheritance:
+        FileSystemObject → Directory
+
+    Example:
+        root = Directory("/")
+        home = Directory("home", parent=root)
+        root.add_child(home)
+        file = File("readme.txt", parent=home)
+        home.add_child(file)
+    """
 
     def __init__(self, name: str, parent: Optional["Directory"] = None):
         """

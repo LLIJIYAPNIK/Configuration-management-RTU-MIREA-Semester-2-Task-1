@@ -3,34 +3,50 @@ from abstract.command import Command
 
 class CdCommand(Command):
     """
-    cd - change directory
+    cd - change the current working directory
+
     Usage:
-        cd [path]
-    Changes the current working directory to the specified path.
-    If no path is specified, it changes to the home directory.
+        cd [PATH]
+
+    Description:
+        Changes the shell's current working directory to the specified PATH.
+        If PATH is not provided, defaults to the current directory (".").
+        Supports relative paths, absolute paths, and ".." for parent directory.
+
+    Special Paths:
+        cd          → same as cd . (no change)
+        cd ..       → go to parent directory
+        cd ../..    → go up two levels
+        cd /        → go to root directory
 
     Examples:
-        cd
-        cd /home/user
-        cd ..
-        cd ../..
+        $ cd /home/user
+        $ cd ..
+        $ cd projects/docs
+        $ cd
+
+    Notes:
+        - If PATH does not exist or is not a directory, prints an error.
+        - Does not support shell expansions (e.g., ~, $HOME) — use absolute/relative paths.
     """
 
     command = "cd"
-    command_description = "cd - change directory"
     flags = {}
     args = {
         "path": {
             "nargs": "?",
             "default": ".",
-            "help": "path to directory",
+            "help": "Target directory path (relative or absolute)",
             "metavar": "PATH",
         }
     }
 
-    def execute(self, *args):
-        data = self.parser.parse_args(*args)
-        self.fs.cd(data.path)
+    def execute(self, args):
+        data = self.parse_args(args)
+        if data is None:
+            return
 
-    def get_help(self):
-        return self.__doc__.strip()
+        try:
+            self.fs.cd(data.path)
+        except (ValueError, FileNotFoundError, NotADirectoryError) as e:
+            print(f"cd: {e}")

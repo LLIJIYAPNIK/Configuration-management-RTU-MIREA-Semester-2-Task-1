@@ -5,6 +5,7 @@ from .sc import ScCommand
 from .head import HeadCommand
 from .tac import TacCommand
 from .wc import WcCommand
+from .rm import RmCommand
 
 
 __all__ = ["CdCommand", "LsCommand", "ScCommand", "HeadCommand", "Register"]

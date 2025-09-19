@@ -114,7 +114,3 @@ def test_tac_command_empty_file(capsys, tac_command_with_vfs, vfs_fs):
     tac_command_with_vfs.execute(["/tmp/empty.txt"])
     captured = capsys.readouterr()
     assert captured.out == "\n"
-
-
-def test_tac_command_get_help(tac_command_with_vfs):
-    assert tac_command_with_vfs.get_help() == "read file reverse"

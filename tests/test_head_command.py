@@ -72,9 +72,8 @@ def test_head_command_default_10_rows(capsys, head_command_with_vfs):
 
     captured = capsys.readouterr()
     lines = captured.out.strip().split("\n")
-    assert lines[0] == "10"
-    assert lines[1] == "test.txt"
-    assert lines[2:] == ["Line 1", "Line 2", "Line 3"]
+    assert lines[0] == "test.txt"
+    assert lines[1:] == ["Line 1", "Line 2", "Line 3"]
 
 
 def test_head_command_with_n_flag(capsys, head_command_with_vfs):
@@ -89,9 +88,8 @@ def test_head_command_with_n_flag(capsys, head_command_with_vfs):
 
     captured = capsys.readouterr()
     lines = captured.out.strip().split("\n")
-    assert lines[0] == "3"  # ← data.n
-    assert lines[1] == "test.txt"
-    assert lines[2:] == ["Line 1", "Line 2", "Line 3"]
+    assert lines[0] == "test.txt"
+    assert lines[1:] == ["Line 1", "Line 2", "Line 3"]
 
 
 def test_head_command_file_not_exists(head_command_with_vfs):
@@ -119,9 +117,8 @@ def test_head_command_multiple_paths_uses_first(capsys, head_command_with_vfs):
 
     captured = capsys.readouterr()
     lines = captured.out.strip().split("\n")
-    assert lines[0] == "10"
-    assert lines[1] == "hello.txt"
-    assert lines[2] == "Hello World!"
+    assert lines[0] == "hello.txt"
+    assert lines[1] == "Hello World!"
 
 
 def test_head_command_empty_file(capsys, head_command_with_vfs, vfs_fs):
@@ -136,10 +133,9 @@ def test_head_command_empty_file(capsys, head_command_with_vfs, vfs_fs):
     captured = capsys.readouterr()
     lines = captured.out.split("\n")
 
-    assert lines[0] == "10"
-    assert lines[1] == "empty.txt"
-    assert lines[2] == ""
-    assert len(lines) >= 3
+    assert lines[0] == "empty.txt"
+    assert lines[1] == ""
+    assert len(lines) >= 2
 
 
 def test_head_command_single_line(capsys, head_command_with_vfs):
@@ -147,13 +143,5 @@ def test_head_command_single_line(capsys, head_command_with_vfs):
 
     captured = capsys.readouterr()
     lines = captured.out.strip().split("\n")
-    assert lines[0] == "10"
-    assert lines[1] == "hello.txt"
-    assert lines[2] == "Hello World!"
-
-
-def test_head_command_get_help(head_command_with_vfs):
-    help_text = head_command_with_vfs.get_help()
-    assert "head - show n rows of the file" in help_text
-    assert "Usage:" in help_text
-    assert "Example:" in help_text
+    assert lines[0] == "hello.txt"
+    assert lines[1] == "Hello World!"

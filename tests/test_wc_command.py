@@ -140,7 +140,3 @@ def test_wc_command_empty_file(capsys, wc_command_with_vfs, vfs_fs):
     wc_command_with_vfs.execute(["-L", "/tmp/empty.txt"])
     captured = capsys.readouterr()
     assert captured.out.strip() == "0 empty.txt"
-
-
-def test_wc_command_get_help(wc_command_with_vfs):
-    assert wc_command_with_vfs.get_help() == "word count"

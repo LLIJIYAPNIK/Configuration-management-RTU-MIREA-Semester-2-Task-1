@@ -18,7 +18,7 @@ def test_filesystem_creation():
     assert fs.cwd == fs.root
 
 
-def test_bad_filesystem_creation():
+def test_bad_file_system_creation():
     with pytest.raises(
         ValueError,
         match=r"Root directory \('/'\) not found in tree_dict",

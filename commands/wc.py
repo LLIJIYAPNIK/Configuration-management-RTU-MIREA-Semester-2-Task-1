@@ -2,7 +2,38 @@ from abstract.command import Command
 
 
 class WcCommand(Command):
-    """word count"""
+    """
+    wc - word, line, character, and longest line count
+
+    Usage:
+        wc [OPTIONS] PATH
+
+    Description:
+        Prints counts of lines, words, characters, and longest line length for a file.
+
+        By default, prints: lines words characters filename
+        Use flags to customize output.
+
+    Options:
+        -I    Print the number of lines.
+        -w    Print the number of words.
+        -m    Print the number of characters.
+        -L    Print the length of the longest line.
+
+    Examples:
+        $ wc file.txt                    # Default: lines words chars filename
+        $ wc -l file.txt                 # Only line count
+        $ wc -w -m file.txt              # Words and characters
+        $ wc -L file.txt                 # Longest line length
+        $ wc -l -w -m -L file.txt        # All counts
+
+    Notes:
+        - PATH must point to an existing file (not a directory).
+        - Words are defined as non-whitespace sequences (split by whitespace).
+        - Lines are split by newline character — empty file has 1 line.
+        - Characters include all bytes (including newlines).
+        - Longest line is measured in characters (excluding newline).
+    """
 
     command = "wc"
     command_description = "word count"
@@ -32,8 +63,11 @@ class WcCommand(Command):
         }
     }
 
-    def execute(self, *args):
-        data = self.parser.parse_args(*args)
+    def execute(self, args):
+        data = self.parse_args(args)
+
+        if data is None:
+            return
 
         if not self.register.fs.exists(data.path[0]):
             raise FileExistsError("File does not exists. Check your path.")
@@ -62,21 +96,22 @@ class WcCommand(Command):
 
             print(result + file.name)
 
-    def get_help(self):
-        return self.__doc__.strip()
-
     @staticmethod
     def get_word_count(file_content: str):
+        """Count words by splitting on whitespace."""
         return len(file_content.split())
 
     @staticmethod
     def get_lines_count(file_content: str):
+        """Count lines — split by newline. Empty string → 1 line."""
         return len(file_content.split("\n"))
 
     @staticmethod
     def get_symbols_count(file_content: str):
+        """Count all characters (including newlines)."""
         return len(file_content)
 
     @staticmethod
     def get_max_length_line(file_content: str):
+        """Return length of the longest line (excluding newline)."""
         return max(map(len, file_content.split("\n")))

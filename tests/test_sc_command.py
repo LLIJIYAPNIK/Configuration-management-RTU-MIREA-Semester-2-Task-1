@@ -135,7 +135,3 @@ def test_sc_command_register_reconfigured(
     assert "test" in new_register.commands
 
     assert new_register.commands["test"].fs == mock_fs_instance
-
-
-def test_sc_command_get_help(sc_command):
-    assert "sc - start command" in sc_command.get_help()
