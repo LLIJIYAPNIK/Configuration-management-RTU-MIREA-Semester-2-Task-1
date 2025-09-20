@@ -21,8 +21,7 @@ class UnknownCommandName(Exception):
     """
 
     def __init__(self, command_name: str):
-        super().__init__(command_name)
-        self.message = f"Unknown command: {command_name}"
+        super().__init__(f"Unknown command: {command_name}")
 
 
 class Terminal:
@@ -133,9 +132,9 @@ class Terminal:
             return
 
         # Handle registered commands
-        if command_name in self.register.commands:
+        if self.register.get(command_name):
             self.register.execute(command_name, *args)
             return
 
         # Handle unknown commands
-        raise UnknownCommandName(f"Unknown command: {command_name}")
+        raise UnknownCommandName(command_name)

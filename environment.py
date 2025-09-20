@@ -63,9 +63,9 @@ class Environment:
         if var in self.environment:
             return self.environment[var]
         else:
-            raise VarEnvironmentNotFound(f"{var} not found in environment")
+            raise VarEnvironmentNotFound(var)
 
-    def set(self, var: str, value: str) -> int():
+    def set(self, var: str, value: str) -> str | None:
         """
         Sets or updates an environment variable.
 
@@ -86,3 +86,4 @@ class Environment:
         if self.get(var):
             self.environment[var] = value
             return "Success"
+        raise VarEnvironmentNotFound(var)

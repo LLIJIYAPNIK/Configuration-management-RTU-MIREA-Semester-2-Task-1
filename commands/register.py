@@ -45,8 +45,6 @@ class Register:
         """
         if name in self.commands:
             return self.commands[name]
-        else:
-            raise ValueError(f"Command {name} not found")
 
     def execute(self, name: str, *args):
         """Execute a registered command with provided arguments.

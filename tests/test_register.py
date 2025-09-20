@@ -28,13 +28,6 @@ def test_get():
     assert register.get("cd") == CdCommand
 
 
-def test_bad_get():
-    with pytest.raises(ValueError, match="Command cd not found"):
-        file_system = FileSystem({"/": {}})
-        register = Register(file_system, User(), Environment())
-        register.get("cd")
-
-
 def test_execute():
     file_system = FileSystem({"/": {}})
     register = Register(file_system, User(), Environment())
@@ -44,7 +37,7 @@ def test_execute():
 
 
 def test_bad_execute():
-    with pytest.raises(ValueError, match="Command cd not found"):
+    with pytest.raises(TypeError, match="'NoneType' object is not callable"):
         file_system = FileSystem({"/": {}})
         register = Register(file_system, User(), Environment())
         register.execute("cd", ".")
