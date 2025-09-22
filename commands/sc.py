@@ -66,7 +66,7 @@ class ScCommand(Command):
                 "Script not found. Check your path to script."
             )
 
-        new_register = Register(new_file_system, self.user, self.env)
+        new_register = Register(new_file_system, self.register.user, self.register.user)
         new_register.terminal = self.register.terminal
         for cmd_name, cmd_class in self.register.commands.items():
             new_register.commands[cmd_name] = cmd_class

@@ -45,4 +45,4 @@ class RmCommand(Command):
         if data is None:
             return
 
-        self.fs.rm(data.path[0])
+        self.fs.rm(data.path)
